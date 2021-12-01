@@ -2,6 +2,7 @@
 "client_id" : "00ff81b1-fd97-4a7d-b7c8-ec76d470cbe2",
 "authorization_user_agent" : "DEFAULT",
 "redirect_uri" : "msauth://com.eslam.csp1401_test/c5eyz3af4lx9u6dTtoFNLqHm3EA%3D",
+  "broker_redirect_uri_registered": true,
   "account_mode" : "SINGLE",
 "authorities" : [
 {

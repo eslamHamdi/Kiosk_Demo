@@ -5,10 +5,17 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
+import com.eslam.csp1401_test.databinding.FragmentEventsBinding
 
 
 class EventsFragment : Fragment() {
 
+    lateinit var binding :FragmentEventsBinding
+
+    val viewModel:MainViewModel by activityViewModels()
+
+    lateinit var list:List<EventModel>
 
 
 
@@ -16,9 +23,26 @@ class EventsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_events, container, false)
+        binding = FragmentEventsBinding.inflate(inflater)
+        return binding.root
     }
 
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        viewModel.getEvents()
+
+        viewModel.eventList.observe(viewLifecycleOwner){
+            if (it != null)
+            {
+                val adapter= EventsAdapter(it)
+                binding.recycler.adapter = adapter
+            }
+
+        }
     }
+
+    }
+
+

@@ -7,6 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
+import com.eslam.csp1401_test.databinding.FragmentHomeBinding
 import com.microsoft.identity.client.*
 import com.microsoft.identity.client.exception.MsalException
 import com.microsoft.identity.client.IPublicClientApplication.ISingleAccountApplicationCreatedListener
@@ -15,9 +18,9 @@ import com.microsoft.identity.client.ISingleAccountPublicClientApplication.SignO
 import com.microsoft.identity.client.IAuthenticationResult
 
 import com.microsoft.identity.client.SilentAuthenticationCallback
-
-
-
+import com.microsoft.identity.client.exception.MsalClientException
+import com.microsoft.identity.client.exception.MsalServiceException
+import com.microsoft.identity.client.exception.MsalUiRequiredException
 
 
 class HomeFragment : Fragment() {
@@ -25,6 +28,20 @@ class HomeFragment : Fragment() {
     private var mSingleAccountApp: ISingleAccountPublicClientApplication? = null
     private val scopes = listOf<String>("User.Read","Calendars.Read")
     var accessToken:String? = null
+    val viewModel:MainViewModel by activityViewModels()
+    lateinit var binding:FragmentHomeBinding
+
+    var signed = false
+
+    //val publicCient = PublicClientApplication.create(this.requireActivity(),R.string.AppId)
+
+
+
+
+
+
+
+
 
 
     override fun onCreateView(
@@ -32,7 +49,10 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false)
+
+        binding =  FragmentHomeBinding.inflate(inflater)
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -48,6 +68,13 @@ class HomeFragment : Fragment() {
                     displayError(exception)
                 }
             })
+
+        binding.signIn.setOnClickListener {
+
+            signIn()
+        }
+
+
     }
 
     private fun loadAccount() {
@@ -59,7 +86,10 @@ class HomeFragment : Fragment() {
                 // You can use the account data to update your UI or your app database.
                 if (activeAccount != null) {
 
+
+
                     updateUI(activeAccount.username)
+
                 }
 
             }
@@ -85,11 +115,24 @@ class HomeFragment : Fragment() {
         if (mSingleAccountApp == null) {
             return;
         }
+        if (signed)
+        {
+//            mSingleAccountApp!!.signIn(this.requireActivity(), null,
+//                scopes.toTypedArray(), getAuthSilentCallback() as AuthenticationCallback
+   //         )
+            acquireTokenSilently()
+
+        }else
+    {
         getAuthInteractiveCallback()?.let {
-            mSingleAccountApp!!.signIn(requireActivity(), null,
+            mSingleAccountApp!!.signIn(
+                this.requireActivity(), null,
                 scopes.toTypedArray(), it
             )
-        };
+
+        }
+    }
+
     }
 
 
@@ -103,6 +146,7 @@ fun signOut()
         override fun onSignOut() {
             updateUI("null")
             performOperationOnSignOut()
+            signed = false
         }
 
         override fun onError( exception: MsalException) {
@@ -138,8 +182,9 @@ fun signOut()
             override fun onSuccess(authenticationResult: IAuthenticationResult) {
                 /* Successfully got a token, use it to call a protected resource - MSGraph */
                 //Log.d(TAG, "Successfully authenticated")
-                /* Update UI */updateUI(authenticationResult.account.username)
                  accessToken = authenticationResult.accessToken;
+                viewModel.accessToken = accessToken
+                updateUI(authenticationResult.account.username)
             }
 
             override fun onError(exception: MsalException) {
@@ -157,6 +202,10 @@ fun signOut()
 
     private fun updateUI(account: String) {
 
+        acquireTokenSilently()
+
+        findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToEventsFragment(account))
+
     }
 
     private fun getAuthSilentCallback(): SilentAuthenticationCallback? {
@@ -164,11 +213,25 @@ fun signOut()
             override fun onSuccess(authenticationResult: IAuthenticationResult) {
                 Log.d(null, "Successfully authenticated")
                 accessToken = authenticationResult.accessToken
+                viewModel.accessToken = accessToken
+                updateUI(authenticationResult.account.username)
             }
 
             override fun onError(exception: MsalException) {
                 Log.d(null, "Authentication failed: $exception")
                 displayError(exception)
+                when (exception) {
+                    is MsalClientException -> {
+                        /* Exception inside MSAL, more info inside MsalError.java */
+                    }
+                    is MsalServiceException -> {
+                        /* Exception when communicating with the STS, likely config issue */
+                    }
+                    is MsalUiRequiredException -> {
+                        /* Tokens expired or no session, retry with interactive */
+                        acquireTokenInteractive()
+                    }
+                }
             }
         }
     }

@@ -18,5 +18,10 @@
         android:id="@+id/eventsFragment"
         android:name="com.eslam.csp1401_test.EventsFragment"
         android:label="fragment_events"
-        tools:layout="@layout/fragment_events" />
+        tools:layout="@layout/fragment_events" >
+        <argument
+            android:name="userName"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
 </navigation>
