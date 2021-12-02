@@ -1,11 +1,13 @@
 package com.eslam.csp1401_test
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.navArgs
 import com.eslam.csp1401_test.databinding.FragmentEventsBinding
 
 
@@ -16,6 +18,10 @@ class EventsFragment : Fragment() {
     val viewModel:MainViewModel by activityViewModels()
 
     lateinit var list:List<EventModel>
+
+    val args:EventsFragmentArgs by navArgs()
+
+    lateinit var adapter: EventsAdapter
 
 
 
@@ -31,13 +37,18 @@ class EventsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        adapter = EventsAdapter(listOf())
+        binding.recycler.adapter = adapter
         viewModel.getEvents()
+
+       // requireActivity().actionBar?.title = args.userName
+        Log.e(null, "onViewCreated: ", )
 
         viewModel.eventList.observe(viewLifecycleOwner){
             if (it != null)
             {
-                val adapter= EventsAdapter(it)
-                binding.recycler.adapter = adapter
+                adapter= EventsAdapter(it)
+
             }
 
         }

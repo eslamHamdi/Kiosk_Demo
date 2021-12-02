@@ -1,16 +1,13 @@
 {
-"client_id" : "00ff81b1-fd97-4a7d-b7c8-ec76d470cbe2",
-"authorization_user_agent" : "DEFAULT",
-"redirect_uri" : "msauth://com.eslam.csp1401_test/c5eyz3af4lx9u6dTtoFNLqHm3EA%3D",
-  "broker_redirect_uri_registered": true,
+  "client_id" : "b3d8e2e6-58c9-48ac-8400-7b06e2e74998",
+  "authorization_user_agent" : "DEFAULT",
+  "redirect_uri" : "msauth://com.eslam.csp1401_test/c5eyz3af4lx9u6dTtoFNLqHm3EA%3D",
   "account_mode" : "SINGLE",
-"authorities" : [
-{
-"type": "AAD",
-"audience": {
-"type": "AzureADMultipleOrgs",
-"tenant_id": "organizations"
-}
-}
-]
+  "broker_redirect_uri_registered": true,
+  "authorities" : [
+    {
+      "type": "AAD",
+      "authority_url": "https://login.microsoftonline.com/eb0e2f02-a441-4cf6-9742-b3d030bff3bd"
+    }
+  ]
 }

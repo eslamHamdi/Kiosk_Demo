@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.get
 import com.eslam.csp1401_test.databinding.FragmentHomeBinding
 import com.microsoft.identity.client.*
 import com.microsoft.identity.client.exception.MsalException
@@ -26,14 +27,13 @@ import com.microsoft.identity.client.exception.MsalUiRequiredException
 class HomeFragment : Fragment() {
     val AUTHORITY = "https://login.microsoftonline.com/common"
     private var mSingleAccountApp: ISingleAccountPublicClientApplication? = null
-    private val scopes = listOf<String>("User.Read","Calendars.Read")
+    private val scopes = listOf<String>("User.Read","Calendars.ReadWrite")
     var accessToken:String? = null
     val viewModel:MainViewModel by activityViewModels()
     lateinit var binding:FragmentHomeBinding
-
     var signed = false
 
-    //val publicCient = PublicClientApplication.create(this.requireActivity(),R.string.AppId)
+
 
 
 
@@ -183,7 +183,7 @@ fun signOut()
                 /* Successfully got a token, use it to call a protected resource - MSGraph */
                 //Log.d(TAG, "Successfully authenticated")
                  accessToken = authenticationResult.accessToken;
-                viewModel.accessToken = accessToken
+                viewModel.accessToken = "Bearer $accessToken"
                 updateUI(authenticationResult.account.username)
             }
 
@@ -203,8 +203,14 @@ fun signOut()
     private fun updateUI(account: String) {
 
         acquireTokenSilently()
+        val controller = findNavController()
 
-        findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToEventsFragment(account))
+        if(controller.currentDestination == controller.graph[R.id.homeFragment]){
+            controller.navigate(HomeFragmentDirections.actionHomeFragmentToEventsFragment(account))
+        }
+
+       // findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToEventsFragment(account))
+
 
     }
 
@@ -213,7 +219,7 @@ fun signOut()
             override fun onSuccess(authenticationResult: IAuthenticationResult) {
                 Log.d(null, "Successfully authenticated")
                 accessToken = authenticationResult.accessToken
-                viewModel.accessToken = accessToken
+                viewModel.accessToken = "Bearer $accessToken"
                 updateUI(authenticationResult.account.username)
             }
 

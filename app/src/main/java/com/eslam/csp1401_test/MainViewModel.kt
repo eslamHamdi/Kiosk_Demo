@@ -13,6 +13,7 @@ class MainViewModel: ViewModel() {
 
     var eventList:MutableLiveData<List<EventModel>> = MutableLiveData()
 
+
     fun getEvents()
     {
         viewModelScope.launch {

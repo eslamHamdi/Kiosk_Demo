@@ -16,7 +16,7 @@ object GraphClient {
     private fun retrofit(): Retrofit {
         return Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
-            .client(clientBuilder())
+           // .client(clientBuilder())
             .baseUrl(BASE_URL)
             .build()
     }
