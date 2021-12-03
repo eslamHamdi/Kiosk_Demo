@@ -8,6 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavController
+import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.get
 import com.eslam.csp1401_test.databinding.FragmentHomeBinding
@@ -27,7 +29,7 @@ import com.microsoft.identity.client.exception.MsalUiRequiredException
 class HomeFragment : Fragment() {
     val AUTHORITY = "https://login.microsoftonline.com/common"
     private var mSingleAccountApp: ISingleAccountPublicClientApplication? = null
-    private val scopes = listOf<String>("User.Read","Calendars.ReadWrite")
+    private val scopes = listOf<String>("User.Read","Calendars.Read")
     var accessToken:String? = null
     val viewModel:MainViewModel by activityViewModels()
     lateinit var binding:FragmentHomeBinding
@@ -85,10 +87,19 @@ class HomeFragment : Fragment() {
             override fun onAccountLoaded(activeAccount: IAccount?) {
                 // You can use the account data to update your UI or your app database.
                 if (activeAccount != null) {
+                    Log.e(null, "onAccountLoaded:$accessToken ", )
+
+                    acquireTokenSilently()
 
 
 
-                    updateUI(activeAccount.username)
+//                   if (accessToken != null)
+//                {
+//                     updateUI(accessToken)
+//                      }
+
+
+
 
                 }
 
@@ -183,8 +194,10 @@ fun signOut()
                 /* Successfully got a token, use it to call a protected resource - MSGraph */
                 //Log.d(TAG, "Successfully authenticated")
                  accessToken = authenticationResult.accessToken;
-                viewModel.accessToken = "Bearer $accessToken"
-                updateUI(authenticationResult.account.username)
+
+                if (accessToken != null) {
+                   updateUI(accessToken)
+                }
             }
 
             override fun onError(exception: MsalException) {
@@ -200,14 +213,25 @@ fun signOut()
         }
     }
 
-    private fun updateUI(account: String) {
+    private fun updateUI(token: String?) {
 
-        acquireTokenSilently()
+        //acquireTokenSilently()
         val controller = findNavController()
 
-        if(controller.currentDestination == controller.graph[R.id.homeFragment]){
-            controller.navigate(HomeFragmentDirections.actionHomeFragmentToEventsFragment(account))
-        }
+        Log.e(null, "updateUI: $token ", )
+        controller.safeNavigate(HomeFragmentDirections.actionHomeFragmentToEventsFragment(token))
+        val dest =controller.currentDestination
+
+//                if(controller.currentDestination == controller.graph[R.id.homeFragment]){
+//                    controller.navigate(HomeFragmentDirections.actionHomeFragmentToEventsFragment(token))
+//                    controller.currentDestination
+//                }
+
+
+
+
+
+
 
        // findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToEventsFragment(account))
 
@@ -219,8 +243,10 @@ fun signOut()
             override fun onSuccess(authenticationResult: IAuthenticationResult) {
                 Log.d(null, "Successfully authenticated")
                 accessToken = authenticationResult.accessToken
-                viewModel.accessToken = "Bearer $accessToken"
-                updateUI(authenticationResult.account.username)
+                Log.e( null,"onSuccess: $accessToken", )
+                if (accessToken != null) {
+                    updateUI(accessToken)
+                }
             }
 
             override fun onError(exception: MsalException) {
@@ -252,4 +278,15 @@ fun signOut()
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        //loadAccount()
+    }
+    fun NavController.safeNavigate(direction: NavDirections) {
+        //Log.d(clickTag, "Click happened")
+        currentDestination?.getAction(direction.actionId)?.run {
+           // Log.d(clickTag, "Click Propagated")
+            navigate(direction)
+        }
+    }
 }

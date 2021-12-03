@@ -1,6 +1,4 @@
 <resources>
     <string name="app_name">CSP1401_Test</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="AppId">"00ff81b1-fd97-4a7d-b7c8-ec76d470cbe2"</string>
 </resources>

@@ -17,7 +17,7 @@ class EventsFragment : Fragment() {
 
     val viewModel:MainViewModel by activityViewModels()
 
-    lateinit var list:List<EventModel>
+    //lateinit var list:List<EventModel>
 
     val args:EventsFragmentArgs by navArgs()
 
@@ -39,15 +39,17 @@ class EventsFragment : Fragment() {
 
         adapter = EventsAdapter(listOf())
         binding.recycler.adapter = adapter
-        viewModel.getEvents()
+        val token = args.userName
+        viewModel.getEvents(token)
 
-       // requireActivity().actionBar?.title = args.userName
-        Log.e(null, "onViewCreated: ", )
+        //requireActivity().actionBar?.title = args.userName
+        Log.d(null, "onViewCreated: $token", )
+
 
         viewModel.eventList.observe(viewLifecycleOwner){
             if (it != null)
             {
-                adapter= EventsAdapter(it)
+                //adapter= EventsAdapter(it)
 
             }
 
