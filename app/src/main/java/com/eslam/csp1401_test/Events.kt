@@ -5,7 +5,37 @@ import com.google.gson.annotations.SerializedName
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class EventModel(
+data class Events(
+
+	@field:SerializedName("@odata.context")
+	val odataContext: String? = null,
+
+	@field:SerializedName("value")
+	val value: List<EventItem?>? = null
+) : Parcelable
+
+@Parcelize
+data class Status(
+
+	@field:SerializedName("response")
+	val response: String? = null,
+
+	@field:SerializedName("time")
+	val time: String? = null
+) : Parcelable
+
+@Parcelize
+data class Body(
+
+	@field:SerializedName("contentType")
+	val contentType: String? = null,
+
+	@field:SerializedName("content")
+	val content: String? = null
+) : Parcelable
+
+@Parcelize
+data class EventItem(
 
 	@field:SerializedName("subject")
 	val subject: String? = null,
@@ -31,6 +61,9 @@ data class EventModel(
 	@field:SerializedName("location")
 	val location: Location? = null,
 
+	@field:SerializedName("locations")
+	val locations: List<LocationsItem?>? = null,
+
 	@field:SerializedName("id")
 	val id: String? = null,
 
@@ -49,36 +82,6 @@ data class AttendeesItem(
 
 	@field:SerializedName("status")
 	val status: Status? = null
-) : Parcelable
-
-@Parcelize
-data class EmailAddress(
-
-	@field:SerializedName("address")
-	val address: String? = null,
-
-	@field:SerializedName("name")
-	val name: String? = null
-) : Parcelable
-
-@Parcelize
-data class Status(
-
-	@field:SerializedName("response")
-	val response: String? = null,
-
-	@field:SerializedName("time")
-	val time: String? = null
-) : Parcelable
-
-@Parcelize
-data class Body(
-
-	@field:SerializedName("contentType")
-	val contentType: String? = null,
-
-	@field:SerializedName("content")
-	val content: String? = null
 ) : Parcelable
 
 @Parcelize
@@ -108,13 +111,6 @@ data class Start(
 ) : Parcelable
 
 @Parcelize
-data class Organizer(
-
-	@field:SerializedName("emailAddress")
-	val emailAddress: EmailAddress? = null
-) : Parcelable
-
-@Parcelize
 data class End(
 
 	@field:SerializedName("dateTime")
@@ -122,4 +118,34 @@ data class End(
 
 	@field:SerializedName("timeZone")
 	val timeZone: String? = null
+) : Parcelable
+
+@Parcelize
+data class LocationsItem(
+
+	@field:SerializedName("uniqueIdType")
+	val uniqueIdType: String? = null,
+
+	@field:SerializedName("displayName")
+	val displayName: String? = null,
+
+	@field:SerializedName("locationType")
+	val locationType: String? = null
+) : Parcelable
+
+@Parcelize
+data class Organizer(
+
+	@field:SerializedName("emailAddress")
+	val emailAddress: EmailAddress? = null
+) : Parcelable
+
+@Parcelize
+data class EmailAddress(
+
+	@field:SerializedName("address")
+	val address: String? = null,
+
+	@field:SerializedName("name")
+	val name: String? = null
 ) : Parcelable

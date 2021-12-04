@@ -1,25 +1,36 @@
 package com.eslam.csp1401_test
 
+import android.text.TextUtils
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.eslam.csp1401_test.databinding.EventItemBinding
 
-class EventsAdapter(val list:List<EventModel>):RecyclerView.Adapter<EventsAdapter.ViewHolder>() {
+class EventsAdapter(var list:List<EventItem?>):RecyclerView.Adapter<EventsAdapter.ViewHolder>() {
 
     lateinit var binding: EventItemBinding
 
 
     inner class ViewHolder(binding:EventItemBinding):RecyclerView.ViewHolder(binding.root)
     {
-        fun bind(event:EventModel)
+        fun bind(event:EventItem)
         {
-            binding.start.text = event.start?.dateTime
-            binding.end.text = event.end?.dateTime
-            binding.preview.text = event.bodyPreview
+            binding.start.text = event.start?.dateTime.toString()
+            Log.e(null, "bind: ${event.start?.dateTime.toString()} ", )
+            binding.end.text = event.end?.dateTime.toString()
+             val br:StringBuffer= StringBuffer();
+            for ( desc:AttendeesItem? in event.attendees!!) {
 
-            notifyDataSetChanged()
+                if (desc != null) {
+                    br.append("\n Email: ${desc.emailAddress?.address} \n Status: ${desc.status?.response} \n")
+                }
+
+        }
+            binding.attend.text = br
+
+
         }
 
 
@@ -34,11 +45,19 @@ class EventsAdapter(val list:List<EventModel>):RecyclerView.Adapter<EventsAdapte
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
       val item = list[position]
-        holder.bind(item)
+        if (item != null) {
+            holder.bind(item)
+        }
     }
 
     override fun getItemCount(): Int {
         return list.size
     }
 
+    fun addList(list:List<EventItem?>)
+    {
+        this.list = list
+        notifyDataSetChanged()
+
+    }
 }
