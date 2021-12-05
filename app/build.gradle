@@ -23,6 +23,8 @@ allprojects {
                 password System.getenv("ENV_VSTS_MVN_ANDROIDADAL_ACCESSTOKEN") != null ? System.getenv("ENV_VSTS_MVN_ANDROIDADAL_ACCESSTOKEN") : project.findProperty("vstsMavenAccessToken")
             }
         }
+        maven { url 'https://maven.google.com' }
+        maven { url 'https://projectrome.bintray.com/maven/' }
     }
 
 
@@ -116,4 +118,8 @@ dependencies {
     implementation "androidx.navigation:navigation-runtime-ktx:2.3.5"
     implementation "androidx.navigation:navigation-fragment-ktx:2.3.5"
     implementation "androidx.navigation:navigation-ui-ktx:2.3.5"
+
+
+    //ms Notification
+    implementation 'com.microsoft.connecteddevices:connecteddevices-sdk:+'
 }

@@ -43,6 +43,10 @@ data class EventItem(
 	@field:SerializedName("attendees")
 	val attendees: List<AttendeesItem?>? = null,
 
+
+	@field:SerializedName("@removed")
+	val removed: RemovedState? = null,
+
 	@field:SerializedName("organizer")
 	val organizer: Organizer? = null,
 
@@ -54,6 +58,9 @@ data class EventItem(
 
 	@field:SerializedName("bodyPreview")
 	val bodyPreview: String? = null,
+
+	@field:SerializedName("responseStatus")
+	val responseStatus: ResponseStatus? = null,
 
 	@field:SerializedName("end")
 	val end: End? = null,
@@ -68,7 +75,10 @@ data class EventItem(
 	val id: String? = null,
 
 	@field:SerializedName("body")
-	val body: Body? = null
+	val body: Body? = null,
+
+	@field:SerializedName("isCancelled")
+	val isCancelled: Boolean? = null
 ) : Parcelable
 
 @Parcelize
@@ -149,3 +159,20 @@ data class EmailAddress(
 	@field:SerializedName("name")
 	val name: String? = null
 ) : Parcelable
+
+
+@Parcelize
+data class ResponseStatus(
+
+	@field:SerializedName("response")
+	val response: String? = null,
+
+	@field:SerializedName("time")
+	val time: String? = null
+) : Parcelable
+
+@Parcelize
+  data class RemovedState(
+	@field:SerializedName("reason")
+	  val reason:String? =null
+  ): Parcelable

@@ -11,19 +11,17 @@ import okhttp3.logging.HttpLoggingInterceptor
 
 object GraphClient {
 
-    private const val BASE_URL = " https://graph.microsoft.com/v1.0/me/"
 
-    private fun retrofit(): Retrofit {
+    private fun retrofit(url: String): Retrofit {
         return Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create())
-           // .client(clientBuilder())
-            .baseUrl(BASE_URL)
+            // .client(clientBuilder())
+            .baseUrl(url)
             .build()
     }
 
 
-    private fun clientBuilder():OkHttpClient
-    {
+    private fun clientBuilder(): OkHttpClient {
         val logging = HttpLoggingInterceptor()
 // set your desired log level
 // set your desired log level
@@ -41,7 +39,13 @@ object GraphClient {
     }
 
 
-    val retrofitService: GraphService by lazy {
-        retrofit().create(GraphService::class.java)
-    }
+//    val retrofitService: GraphService by lazy {
+//        retrofit().create(GraphService::class.java)
+//    }
+
+    fun getService(url: String)= retrofit(url).create(GraphService::class.java)
+
+
+
+
 }

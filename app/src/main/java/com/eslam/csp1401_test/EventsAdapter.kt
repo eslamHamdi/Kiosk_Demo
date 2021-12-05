@@ -5,10 +5,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.eslam.csp1401_test.databinding.EventItemBinding
 
-class EventsAdapter(var list:List<EventItem?>):RecyclerView.Adapter<EventsAdapter.ViewHolder>() {
+class EventsAdapter:ListAdapter<EventItem,EventsAdapter.ViewHolder>(DiffCallBack) {
 
     lateinit var binding: EventItemBinding
 
@@ -44,20 +46,23 @@ class EventsAdapter(var list:List<EventItem?>):RecyclerView.Adapter<EventsAdapte
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-      val item = list[position]
+      val item = getItem(position)
         if (item != null) {
             holder.bind(item)
         }
     }
 
-    override fun getItemCount(): Int {
-        return list.size
-    }
-
-    fun addList(list:List<EventItem?>)
+    companion object DiffCallBack: DiffUtil.ItemCallback<EventItem>()
     {
-        this.list = list
-        notifyDataSetChanged()
+        override fun areItemsTheSame(oldItem: EventItem, newItem: EventItem): Boolean {
+            return oldItem.id == newItem.id
+
+        }
+
+        override fun areContentsTheSame(oldItem: EventItem, newItem: EventItem): Boolean {
+
+            return oldItem == newItem
+        }
 
     }
 }
