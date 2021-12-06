@@ -1,5 +1,6 @@
 package com.eslam.csp1401_test
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -14,8 +15,8 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
 
     var eventList:MutableLiveData<List<EventItem?>> = MutableLiveData()
 
-    var eventUpdates:MutableLiveData<List<EventItem?>> = MutableLiveData()
-    var updatesOnly:MutableLiveData<List<EventItem?>> = MutableLiveData()
+    var eventUpdates:MutableLiveData<MutableList<EventItem?>> = MutableLiveData()
+    var updatesOnly:MutableLiveData<MutableList<EventItem?>> = MutableLiveData()
 
     var deltaLink:MutableLiveData<String?> = MutableLiveData()
     var nextLink:MutableLiveData<String?> = MutableLiveData()
@@ -75,16 +76,19 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
         }
     }
 
-    fun getUpdatesUsingTheStateTokens(token:String,tokenState:String)
+    @SuppressLint("NullSafeMutableLiveData")
+    fun getUpdatesUsingTheStateTokens(token:String, stateLink:String, baseUrl:String)
     {
         viewModelScope.launch {
             try {
 
-                val result = GraphClient.getService(tokenState).getUpdatesUsingStateToken(token)
+                val result = GraphClient.getService(baseUrl).getUpdatesUsingStateToken(token,stateLink)
                 val updatedEventsOnly = result.events
                 deltaLink.value = result.odataDeltaLink
-                if (updatedEventsOnly != null)
+                nextLink.value = result.odataNextLink
+                if (updatedEventsOnly != null && updatedEventsOnly.isNotEmpty())
                 {
+                    Log.e("TAG", "getUpdatesUsingTheStateTokens: ${result.events} ", )
                     updatesOnly.value = updatedEventsOnly!!
                 }
 

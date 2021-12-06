@@ -65,4 +65,9 @@ class EventsAdapter:ListAdapter<EventItem,EventsAdapter.ViewHolder>(DiffCallBack
         }
 
     }
+
+fun customSubmit(list:MutableList<EventItem?>)
+{
+    this.currentList.addAll(list)
+}
 }

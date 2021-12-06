@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 import com.eslam.csp1401_test.databinding.FragmentEventsBinding
+import kotlinx.coroutines.*
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -27,12 +28,17 @@ class EventsFragment : Fragment() {
     val authHelper:AuthenticationHelper = AuthenticationHelper
 
     val args:EventsFragmentArgs by navArgs()
+    var token:String? =null
 
     lateinit var adapter: EventsAdapter
 
     private var nextLink:String? = null
     private var deltaLink:String? = null
     private var updatedToken:String? = null
+
+    private var repeatingJob:Job = Job()
+
+    private var updatedList:MutableList<EventItem?> = mutableListOf()
 
 
 
@@ -50,7 +56,7 @@ class EventsFragment : Fragment() {
 
         adapter = EventsAdapter()
         binding.recycler.adapter = adapter
-        val token = args.userName
+        token = args.userName
        // viewModel.getEvents(token,BASE_URL)
         val start = getISO8601StringForStartDate()
         val end = getISO8601StringForEndDate()
@@ -73,7 +79,7 @@ class EventsFragment : Fragment() {
         }
 
         authHelper.tokenState.observe(viewLifecycleOwner){
-            updatedToken = it
+            token = it
         }
 
 
@@ -81,6 +87,9 @@ class EventsFragment : Fragment() {
 
         viewModel.eventUpdates.observe(viewLifecycleOwner){
             Log.e("updatedLIst", "onViewCreated: $it ", )
+
+
+
             adapter.submitList(it)
         }
 
@@ -91,7 +100,17 @@ class EventsFragment : Fragment() {
             Log.e("DeltaLink", "onViewCreated: $it ", )
         }
 
+        viewModel.nextLink.observe(viewLifecycleOwner){
+            if (it != null)
+            {
+                viewModel.getUpdatesUsingTheStateTokens(token!!,it!!, BASE_URL)
+            }
+
+        }
+
         viewModel.updatesOnly.observe(viewLifecycleOwner){
+
+
             adapter.submitList(it)
         }
     }
@@ -130,10 +149,36 @@ class EventsFragment : Fragment() {
     //using delta end point + alarm Manager
     fun getUpdatedRange()
     {
-        deltaLink?.let { updatedToken?.let { it1 -> viewModel.getUpdatesUsingTheStateTokens(it1, it) } }
+        deltaLink?.let { updatedToken?.let { it1 -> viewModel.getUpdatesUsingTheStateTokens(it1, it,
+            BASE_URL) } }
 
     }
 
+    private fun startRepeatingJob(timeInterval: Long): Job {
+        return CoroutineScope(Dispatchers.IO).launch {
+            while (isActive) {
+                // add your task here
+                if (deltaLink != null)
+                {
+                    viewModel.getUpdatesUsingTheStateTokens(token!!,deltaLink!!, BASE_URL)
+                }
+                delay(timeInterval)
+            }
+        }
+    }
+
+    //calling for updates every 1 min
+    override fun onResume() {
+        super.onResume()
+
+        repeatingJob = startRepeatingJob(60000L)
+        Log.e("repeatingUpdates", "onResume: called", )
+    }
+
+    override fun onPause() {
+        super.onPause()
+        repeatingJob.cancel()
+    }
 }
 
 
