@@ -1,8 +1,7 @@
 package com.eslam.csp1401_test
 
 import retrofit2.http.*
-
-
+import retrofit2.http.Body
 
 
 interface GraphService {
@@ -25,4 +24,8 @@ interface GraphService {
     @GET()
     @Headers("Content-Type: application/json")
     suspend fun getUpdatesUsingStateToken(@Header("Authorization")token:String,@Url stateLink:String ):EventsChanges
+
+    @POST("events")
+    @Headers("Content-Type: application/json")
+    suspend fun createEvent(@Header("Authorization")token:String,@Body eventItem: EventItem):EventItem
 }

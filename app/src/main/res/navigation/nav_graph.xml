@@ -22,5 +22,20 @@
             android:name="userName"
             app:argType="string"
             app:nullable="true" />
+        <action
+            android:id="@+id/action_eventsFragment_to_createEventFragment"
+            app:destination="@id/createEventFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/createEventFragment"
+        android:name="com.eslam.csp1401_test.database.CreateEventFragment"
+        android:label="CreateEventFragment" >
+        <argument
+            android:name="accessToken"
+            app:argType="string"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_createEventFragment_to_eventsFragment"
+            app:destination="@id/eventsFragment" />
     </fragment>
 </navigation>

@@ -80,8 +80,8 @@ data class EventItem(
 	@field:SerializedName("isCancelled")
 	val isCancelled: Boolean? = null,
 
-	@field:SerializedName("isCancelled")
-      val allowNewTimeProposals:Boolean? = null
+	@field:SerializedName("allowNewTimeProposals")
+      val allowNewTimeProposals:Boolean? = true
 ) : Parcelable
 
 @Parcelize

@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.eslam.csp1401_test.databinding.FragmentEventsBinding
 import kotlinx.coroutines.*
@@ -105,6 +106,11 @@ class EventsFragment : Fragment() {
                 viewModel.getUpdatesUsingTheStateTokens(token!!,it!!, BASE_URL)
             }
 
+        }
+
+        binding.addEvent.setOnClickListener {
+
+            findNavController().navigate(EventsFragmentDirections.actionEventsFragmentToCreateEventFragment(token))
         }
 
     }

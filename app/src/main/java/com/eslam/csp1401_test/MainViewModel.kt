@@ -127,4 +127,18 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
         }
     }
 
+    fun saveEvent(baseUrl: String,token: String,eventItem: EventItem) {
+        viewModelScope.launch(Dispatchers.IO) {
+
+            try {
+                GraphClient.getService(baseUrl).createEvent(token,eventItem)
+            }catch (e:Exception)
+            {
+                Log.e("EventCreation", "saveEvent: ${e.message} ", )
+            }
+
+
+        }
+    }
+
 }

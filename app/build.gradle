@@ -25,6 +25,7 @@ allprojects {
         }
         maven { url 'https://maven.google.com' }
         maven { url 'https://projectrome.bintray.com/maven/' }
+        maven { url 'https://jitpack.io' }
     }
 
 
@@ -66,7 +67,7 @@ android {
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/notice.txt'
         exclude 'META-INF/ASL2.0'
-        exclude("META-INF/*.kotlin_module")
+        //exclude("META-INF/*.kotlin_module")
     }
     buildFeatures {
         dataBinding true
@@ -133,4 +134,8 @@ dependencies {
     // optional - Kotlin Extensions and Coroutines support for Room
     implementation "androidx.room:room-ktx:$room_version"
     implementation "androidx.room:room-paging:$room_version"
+
+    //timePicker
+    implementation 'com.wdullaer:materialdatetimepicker:4.2.3'
+
 }
