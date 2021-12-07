@@ -99,7 +99,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata-core-ktx:2.4.0"
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0'
     implementation "androidx.fragment:fragment-ktx:1.4.0"
-   // implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.4.0"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.4.0"
 
 
 
@@ -122,4 +122,15 @@ dependencies {
 
     //ms Notification
     implementation 'com.microsoft.connecteddevices:connecteddevices-sdk:+'
+
+    //https://developer.android.com/jetpack/androidx/releases/room
+    def room_version = "2.4.0-alpha04"
+    implementation "androidx.room:room-runtime:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+
+
+
+    // optional - Kotlin Extensions and Coroutines support for Room
+    implementation "androidx.room:room-ktx:$room_version"
+    implementation "androidx.room:room-paging:$room_version"
 }

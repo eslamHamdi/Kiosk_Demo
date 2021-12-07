@@ -17,7 +17,7 @@ data class EventsChanges(
 	val odataContext: String? = null,
 
 	@field:SerializedName("value")
-	val events: MutableList<EventItem?>? = null
+	val events: List<EventItem?>? = null
 ) : Parcelable
 
 

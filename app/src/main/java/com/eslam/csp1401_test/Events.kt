@@ -11,7 +11,7 @@ data class Events(
 	val odataContext: String? = null,
 
 	@field:SerializedName("value")
-	val value: MutableList<EventItem?>? = null
+	val value: List<EventItem?>? = null
 ) : Parcelable
 
 @Parcelize
@@ -78,7 +78,10 @@ data class EventItem(
 	val body: Body? = null,
 
 	@field:SerializedName("isCancelled")
-	val isCancelled: Boolean? = null
+	val isCancelled: Boolean? = null,
+
+	@field:SerializedName("isCancelled")
+      val allowNewTimeProposals:Boolean? = null
 ) : Parcelable
 
 @Parcelize

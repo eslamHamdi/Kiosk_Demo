@@ -3,9 +3,12 @@ package com.eslam.csp1401_test
 import android.annotation.SuppressLint
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import androidx.room.Room
+import com.eslam.csp1401_test.database.EventDataBase
+import com.eslam.csp1401_test.database.EventEntity
+import com.eslam.csp1401_test.database.toEntities
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
@@ -15,11 +18,17 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
 
     var eventList:MutableLiveData<List<EventItem?>> = MutableLiveData()
 
-    var eventUpdates:MutableLiveData<MutableList<EventItem?>> = MutableLiveData()
-    var updatesOnly:MutableLiveData<MutableList<EventItem?>> = MutableLiveData()
+
+    var updatesOnly:MutableLiveData<List<EventEntity?>> = MutableLiveData()
 
     var deltaLink:MutableLiveData<String?> = MutableLiveData()
     var nextLink:MutableLiveData<String?> = MutableLiveData()
+    private val dataBase = Room.databaseBuilder(app,EventDataBase::class.java,"EventsDataBase").fallbackToDestructiveMigration().build()
+
+    val dao = dataBase.getEventsDao()
+
+    var eventUpdates: LiveData<List<EventEntity?>> = dao.getAllEvents().asLiveData(viewModelScope.coroutineContext)
+
 
     fun getEvents(accessToken:String?,url:String)
     {
@@ -35,6 +44,8 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
                     val map:MutableMap<String,String> = mutableMapOf()
                     map["Authorization"] = "Bearer $accessToken"
                     val result = GraphClient.getService(url).getEvents("Bearer $accessToken")
+
+
 
                         eventList.value = result.value!!
 
@@ -65,7 +76,10 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
 
                 if (events != null)
                 {
-                    eventUpdates.value = events!!
+                    val eventEntities = events.toEntities()
+
+                    dao.insertEvents(eventEntities)
+
                 }
 
 
@@ -89,7 +103,9 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
                 if (updatedEventsOnly != null && updatedEventsOnly.isNotEmpty())
                 {
                     Log.e("TAG", "getUpdatesUsingTheStateTokens: ${result.events} ", )
-                    updatesOnly.value = updatedEventsOnly!!
+                    val eventEntities = updatedEventsOnly.toEntities()
+                    dao.insertEvents(eventEntities)
+
                 }
 
 
@@ -101,5 +117,14 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
         }
     }
 
+
+    fun clearDataBase()
+    {
+        viewModelScope.launch(Dispatchers.IO) {
+
+            dao.wipeEvents()
+            deltaLink.value = null
+        }
+    }
 
 }

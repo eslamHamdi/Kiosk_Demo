@@ -18,7 +18,7 @@ interface GraphService {
 
 
     @GET("calendarView/delta")
-    @Headers("Content-Type: application/json")
+    @Headers("Content-Type: application/json","Prefer: outlook.timezone=\"Asia/Dubai\"")
     suspend fun getUpdatedEvents(@Header("Authorization") token:String,@Query("startDateTime") startDate:String,
                                  @Query("endDateTime") endDate:String):EventsChanges
 
