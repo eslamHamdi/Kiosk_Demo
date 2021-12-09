@@ -11,8 +11,8 @@ import com.eslam.csp1401_test.Status
 @Entity(tableName = "EventEntities")
 data class EventEntity(
 
-    @PrimaryKey
-    val id: String,
+    @PrimaryKey(autoGenerate = false)
+    val id: String ,
 
     val subject: String? = null,
 
@@ -172,26 +172,28 @@ data class Attendee(
 //    val content: String? = null
 //)
 
-fun List<EventItem?>?.toEntities():List<EventEntity>
+fun EventItem?.toEntity():EventEntity
 {
 
 
     val attendees:MutableList<Attendee> = mutableListOf()
-    this?.forEach {
-        it?.attendees?.map { attendeeItem->
+
+        this?.attendees?.forEach { attendeeItem->
             attendees.add(Attendee(attendeesAddress = attendeeItem?.emailAddress?.address,attendeesName =attendeeItem?.emailAddress?.name,
                 attendeesType = attendeeItem?.type, attendeesStatusResponse = attendeeItem?.status?.response, attendeesStatusTime =attendeeItem?.status?.time ))
         }
-    }
-    return this!!.map {
-        EventEntity(id = it?.id!!, subject = it?.subject,entityAttendees = attendees, removedReason = it?.removed?.reason,
-            locationDisplayName = it?.location?.displayName, locationType = it?.location?.locationType,
-            locationUniqueId = it?.location?.uniqueId, locationUniqueIdType = it?.location?.uniqueIdType,
-            startDateTime = it?.start?.dateTime, startTimeZone = it?.start?.timeZone, endDateTime = it?.end?.dateTime,
-            endTimeZone = it?.end?.timeZone, organizerAddress = it?.organizer?.emailAddress?.address,
-            organizerName =it?.organizer?.emailAddress?.name, bodyPreview = it?.bodyPreview, entityResponse = it?.responseStatus?.response,
-            entityResponseTime = it?.responseStatus?.time, isCancelled = it?.isCancelled)
-    }
+
+    return EventEntity(id = this?.id!!, subject = this?.subject,entityAttendees = attendees, removedReason = this?.removed?.reason,
+        locationDisplayName = this?.location?.displayName, locationType = this?.location?.locationType,
+        locationUniqueId = this?.location?.uniqueId, locationUniqueIdType = this?.location?.uniqueIdType,
+        startDateTime = this?.start?.dateTime, startTimeZone = this?.start?.timeZone, endDateTime = this?.end?.dateTime,
+        endTimeZone = this?.end?.timeZone, organizerAddress = this?.organizer?.emailAddress?.address,
+        organizerName =this?.organizer?.emailAddress?.name, bodyPreview = this?.bodyPreview, entityResponse = this?.responseStatus?.response,
+        entityResponseTime = this?.responseStatus?.time, isCancelled = this?.isCancelled)
+
+
+
+
 }
 
 

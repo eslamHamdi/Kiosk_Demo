@@ -7,8 +7,10 @@ import androidx.lifecycle.*
 import androidx.room.Room
 import com.eslam.csp1401_test.database.EventDataBase
 import com.eslam.csp1401_test.database.EventEntity
-import com.eslam.csp1401_test.database.toEntities
+import com.eslam.csp1401_test.database.toEntity
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 
@@ -27,7 +29,11 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
 
     val dao = dataBase.getEventsDao()
 
-    var eventUpdates: LiveData<List<EventEntity?>> = dao.getAllEvents().asLiveData(viewModelScope.coroutineContext)
+    var eventUpdates: LiveData<List<EventEntity?>> = dao.getAllEvents().map {
+        it.filter { entity->
+            entity.removedReason == null
+        }
+    }.asLiveData(viewModelScope.coroutineContext)
 
 
     fun getEvents(accessToken:String?,url:String)
@@ -76,7 +82,28 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
 
                 if (events != null)
                 {
-                    val eventEntities = events.toEntities()
+                    Log.d("NetworkEvents", "getUpdates: $events ")
+                    val deletedEvents:ArrayList<EventItem> = arrayListOf()
+                    events.forEach {
+                        if (it?.removed?.reason != null)
+                        {
+                            deletedEvents.add(it)
+                        }
+                    }
+                    deletedEvents.forEach {
+                        dao.deleteEvent(it.id!!)
+                    }
+
+                    events.filter {
+                        it?.removed?.reason == null
+                    }
+                    val eventEntities = events.map {
+                        it.toEntity()
+                    }
+
+                    eventEntities.filter {
+                        it.removedReason == null
+                    }
 
                     dao.insertEvents(eventEntities)
 
@@ -102,8 +129,27 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
                 nextLink.value = result.odataNextLink
                 if (updatedEventsOnly != null && updatedEventsOnly.isNotEmpty())
                 {
-                    Log.e("TAG", "getUpdatesUsingTheStateTokens: ${result.events} ", )
-                    val eventEntities = updatedEventsOnly.toEntities()
+
+                    Log.d("NetworkUpdates", "getUpdatesUsingTheStateTokens: ${result.events} ", )
+                    val deletedEvents:ArrayList<EventItem> = arrayListOf()
+                    updatedEventsOnly.forEach {
+                        if (it?.removed?.reason != null)
+                        {
+                            deletedEvents.add(it)
+                        }
+                    }
+                    deletedEvents.forEach {
+                        dao.deleteEvent(it.id!!)
+                    }
+                    updatedEventsOnly.filter {
+                        it?.removed?.reason == null
+                    }
+                    val eventEntities = updatedEventsOnly.map {
+                        it.toEntity()
+                    }
+                    eventEntities.filter {
+                        it.removedReason == null
+                    }
                     dao.insertEvents(eventEntities)
 
                 }
@@ -139,6 +185,14 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
 
 
         }
+    }
+
+    init {
+       viewModelScope.launch(Dispatchers.IO) {
+
+          dao.wipeEvents()
+       }
+
     }
 
 }

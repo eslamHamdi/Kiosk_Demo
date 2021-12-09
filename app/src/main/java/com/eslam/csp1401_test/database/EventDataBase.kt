@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 
-@Database(entities = [EventEntity::class], version = 1,exportSchema = false)
+@Database(entities = [EventEntity::class], version = 3,exportSchema = false)
 @TypeConverters(TypeConverter::class)
 abstract class EventDataBase: RoomDatabase() {
 

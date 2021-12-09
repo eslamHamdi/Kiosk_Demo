@@ -49,7 +49,11 @@ class EventsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.d(null, "onCreateView: called ")
         binding = FragmentEventsBinding.inflate(inflater)
+        val start = getISO8601StringForStartDate()
+        val end = getISO8601StringForEndDate()
+        getUpdatedEvents(args.userName!!,start!!,end!!)
         return binding.root
     }
 
@@ -57,13 +61,12 @@ class EventsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
         adapter = EventsAdapter()
         binding.recycler.adapter = adapter
         token = args.userName
 
-        val start = getISO8601StringForStartDate()
-        val end = getISO8601StringForEndDate()
-        getUpdatedEvents(args.userName!!,start!!,end!!)
+
 
 
 
@@ -85,12 +88,11 @@ class EventsFragment : Fragment() {
         }
 
 
-        viewModel.eventUpdates.observe(viewLifecycleOwner){
+        viewModel.eventUpdates.observe(viewLifecycleOwner){ it ->
             Log.e("updatedLIst", "onViewCreated: $it ", )
 
 
-
-            adapter.submitList(it)
+           adapter.submitList(it)
         }
 
         viewModel.deltaLink.observe(viewLifecycleOwner){
@@ -117,6 +119,7 @@ class EventsFragment : Fragment() {
 
 
     private fun getUpdatedEvents(token:String, start:String,end:String) {
+        Log.d("Conflict2", "getUpdatedEvents: ")
         viewModel.getUpdates(token,start,end, BASE_URL)
     }
 
@@ -155,6 +158,7 @@ class EventsFragment : Fragment() {
 //    }
 
     private fun startRepeatingJob(timeInterval: Long): Job {
+        Log.d("Conflict1", "startRepeatingJob: ")
         return CoroutineScope(Dispatchers.IO).launch {
             while (isActive) {
                 // add your task here

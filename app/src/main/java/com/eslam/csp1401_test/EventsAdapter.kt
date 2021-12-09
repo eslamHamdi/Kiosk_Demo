@@ -67,10 +67,11 @@ class EventsAdapter:ListAdapter<EventEntity,EventsAdapter.ViewHolder>(DiffCallBa
 
         override fun areContentsTheSame(oldItem: EventEntity, newItem: EventEntity): Boolean {
 
-            return oldItem == newItem
+            return oldItem==newItem
         }
 
     }
+
 
 
 }

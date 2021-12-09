@@ -3,6 +3,7 @@ package com.eslam.csp1401_test.database
 import android.R
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,11 +17,13 @@ import com.eslam.csp1401_test.*
 import com.eslam.csp1401_test.databinding.FragmentCreateEventBinding
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 
-class CreateEventFragment : Fragment(), TimePickerDialog.OnTimeSetListener,
-    DatePickerDialog.OnDateSetListener {
+class CreateEventFragment : Fragment(),TimePickerDialog.OnTimeSetListener,DatePickerDialog.OnDateSetListener
+     {
 
 
     lateinit var binding: FragmentCreateEventBinding
@@ -117,8 +120,12 @@ class CreateEventFragment : Fragment(), TimePickerDialog.OnTimeSetListener,
             Toast.makeText(this.requireContext(),"Please Enter All Attendee Info ",Toast.LENGTH_LONG).show()
         }else
         {
-            val emailAddress:EmailAddress = EmailAddress(address = binding.attendeeEmail.toString(), name = binding.attendeeName.toString())
-            val attendeesItem = AttendeesItem(emailAddress = emailAddress, type = binding.attendeeType.toString())
+            val address = binding.attendeeEmail.text.toString()
+            val name = binding.attendeeName.text.toString()
+            val type = binding.attendeeType.text.toString()
+
+            val emailAddress:EmailAddress = EmailAddress(address =address , name = name)
+            val attendeesItem = AttendeesItem(emailAddress = emailAddress, type = type)
 
             val attendeeEmail = binding.attendeeEmail.text.toString()
 
@@ -139,9 +146,13 @@ class CreateEventFragment : Fragment(), TimePickerDialog.OnTimeSetListener,
 
     override fun onTimeSet(view: TimePickerDialog?, hourOfDay: Int, minute: Int, second: Int) {
 
+        val hour = timeConvert(hourOfDay)
+        val min = timeConvert(minute)
+        val sec = timeConvert(second)
+
         if (dateTimeStatus)
         {
-            startTime = "$hourOfDay:$minute:$second:0000000"
+            startTime = "$hour:$min:$sec.0000000"
 
             val editable = Editable.Factory().newEditable(startTime)
 
@@ -149,7 +160,7 @@ class CreateEventFragment : Fragment(), TimePickerDialog.OnTimeSetListener,
 
         }else {
 
-            endTime = "$hourOfDay:$minute:$second:0000000"
+            endTime = "$hour:$min:$sec.0000000"
 
             val editable = Editable.Factory().newEditable(endTime)
 
@@ -164,14 +175,18 @@ class CreateEventFragment : Fragment(), TimePickerDialog.OnTimeSetListener,
 
     override fun onDateSet(view: DatePickerDialog?, year: Int, monthOfYear: Int, dayOfMonth: Int) {
 
+        val editedMonth = monthOfYear +1
+        val month = timeConvert(editedMonth)
+        val day = timeConvert(dayOfMonth)
+
         if (dateTimeStatus)
         {
-            startDate = "$year-$monthOfYear-$dayOfMonth"
+            startDate = "$year-$month-$day"
             val editable = Editable.Factory().newEditable(startDate)
             binding.startDate.text = editable
         }else
         {
-            endDate = "$year-$monthOfYear-$dayOfMonth"
+            endDate = "$year-$month-$day"
             val editable = Editable.Factory().newEditable(endDate)
             binding.endDate.text = editable
 
@@ -197,28 +212,57 @@ class CreateEventFragment : Fragment(), TimePickerDialog.OnTimeSetListener,
     fun openTimePicker()
     {
         val now: Calendar = Calendar.getInstance()
+          val tbd = TimePickerDialog.newInstance(this,now.get(Calendar.HOUR_OF_DAY),now.get(Calendar.MINUTE),true)
 
-        val tpd = TimePickerDialog.newInstance(this,now.get(Calendar.HOUR_OF_DAY),now.get(Calendar.MINUTE),now.get(Calendar.SECOND),true)
+        tbd.show(parentFragmentManager!!, "Timepickerdialog")
 
-        tpd.show(parentFragmentManager,"TimePicker")
+
+
+
+
+
+
+
+
+
 
     }
-
+   // 2021-12-08T08:00:00.0000000  ${startDate}T$startTime  ${endDate}T$endTime
 
        fun saveEvent()
        {
-           val start = Start(dateTime = "${startDate}'T'$startTime",timeZone = "Asia/Dubai")
-           val end = End(dateTime = "$endDate'T'$endTime", timeZone = "Asia/Dubai" )
-           eventItem = EventItem(subject = binding.eventTitle.toString(),attendees = attendeeList,
+
+           val start = Start(dateTime = "${startDate}T$startTime",timeZone = "Asia/Dubai")
+           val end = End(dateTime = "${endDate}T$endTime", timeZone = "Asia/Dubai" )
+           val subject = binding.eventTitle.text.toString()
+           eventItem = EventItem(subject =subject ,attendees = attendeeList,
            start = start, end = end)
                if (token != null)
                {
+                   Log.e(null, "saveEvent:$eventItem ", )
                    viewModel.saveEvent(" https://graph.microsoft.com/v1.0/me/",token,eventItem)
 
                    findNavController().navigate(CreateEventFragmentDirections.actionCreateEventFragmentToEventsFragment(token))
                }
 
        }
+
+    private fun getISO8601StringForDate(date: Date): String? {
+        val dateFormat: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
+        dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+        return dateFormat.format(date)
+    }
+
+    fun timeConvert(time:Int):String
+    {
+        if (time < 10 )
+        {
+            return "0${time}"
+        }
+
+        return time.toString()
+    }
+
 
 
 }

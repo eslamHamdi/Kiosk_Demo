@@ -25,7 +25,7 @@ interface GraphService {
     @Headers("Content-Type: application/json")
     suspend fun getUpdatesUsingStateToken(@Header("Authorization")token:String,@Url stateLink:String ):EventsChanges
 
-    @POST("events")
+    @POST("calendar/events")
     @Headers("Content-Type: application/json")
     suspend fun createEvent(@Header("Authorization")token:String,@Body eventItem: EventItem):EventItem
 }

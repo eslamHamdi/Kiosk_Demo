@@ -1,26 +1,24 @@
 package com.eslam.csp1401_test
 
-import android.app.ActivityOptions
+
+import android.app.ActivityManager
 import android.app.KeyguardManager
 import android.app.admin.DevicePolicyManager
+import android.app.admin.SystemUpdatePolicy
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.BatteryManager
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.UserManager
-import androidx.annotation.RequiresApi
-import android.os.BatteryManager
-
-import android.app.admin.SystemUpdatePolicy
 import android.provider.Settings
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
-import android.app.ActivityManager
-
-
-
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 
 
 class MainActivity : AppCompatActivity() {
@@ -31,6 +29,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
+
 
 
         // Set an option to turn on lock task mode when starting the activity.
@@ -184,5 +185,25 @@ class MainActivity : AppCompatActivity() {
                 startLockTask()
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+
+        val menuInflater = menuInflater
+        // Inflate the custom overflow menu
+        // Inflate the custom overflow menu
+        menuInflater.inflate(R.menu.exit_lockmode, menu)
+
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        if(item.itemId == R.id.exit)
+        {
+            setDefaultMyKioskPolicies(false)
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 }
