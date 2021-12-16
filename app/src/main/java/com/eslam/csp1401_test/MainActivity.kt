@@ -30,9 +30,8 @@ import android.app.KeyguardManager.KeyguardLock
 import android.util.Log
 
 import android.view.WindowManager
-
-
-
+import androidx.appcompat.widget.Toolbar
+import androidx.navigation.ui.setupWithNavController
 
 
 class MainActivity : AppCompatActivity() {
@@ -46,13 +45,14 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-//            window.attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
-//        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+        }
         setContentView(R.layout.activity_main)
 
+        this.setSupportActionBar(findViewById(R.id.toolBar))
+        val toolbar = findViewById<Toolbar>(R.id.toolBar)
         actionBar?.setDisplayHomeAsUpEnabled(true)
-        mDecorView = getWindow().getDecorView();
 
 
         val navHostFragment =
@@ -60,7 +60,12 @@ class MainActivity : AppCompatActivity() {
         navController = navHostFragment.navController
         val appBarConfiguration =
             AppBarConfiguration.Builder(setOf(R.id.homeFragment, R.id.eventsFragment)).build()
-        setupActionBarWithNavController(navController, appBarConfiguration)
+        toolbar.setupWithNavController(navController, appBarConfiguration)
+        mDecorView = window.decorView
+
+
+
+        //setupActionBarWithNavController(navController, appBarConfiguration)
 
 
         // Set an option to turn on lock task mode when starting the activity.
@@ -77,10 +82,9 @@ class MainActivity : AppCompatActivity() {
             getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 
         if (dpm.isDeviceOwnerApp(packageName)) {
-            setDefaultMyKioskPolicies(false);
+            setDefaultMyKioskPolicies(true);
 
 
-            hideSystemUI()
         } else {
             Toast.makeText(
                 applicationContext,
@@ -261,9 +265,11 @@ class MainActivity : AppCompatActivity() {
                 if (dpm.isDeviceOwnerApp(packageName))
                 {
                     setDefaultMyKioskPolicies(false)
+
                 }else
                 {
                     stopLockTask()
+
                 }
 
                 finish()
@@ -291,24 +297,24 @@ class MainActivity : AppCompatActivity() {
         // Set the content to appear under the system bars so that the content
         // doesn't resize when the system bars hide and show.
         val containerView = findViewById<FragmentContainerView>(R.id.fragment_container)
-        //containerView.fitsSystemWindows = true
+        containerView.fitsSystemWindows = true
 
 
 
         mDecorView.setSystemUiVisibility(
-            //View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+           // View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                   // View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
                      //View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
                     View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or// hide nav bar
-                     //View.SYSTEM_UI_FLAG_FULLSCREEN or// hide status bar
+                     View.SYSTEM_UI_FLAG_FULLSCREEN or// hide status bar
                     View.SYSTEM_UI_FLAG_LOW_PROFILE or
                      View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         )
 
-        val window = this.window
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-        window.statusBarColor = this.resources.getColor(R.color.purple_500)
+//        val window = this.window
+//        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+//        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+//        window.statusBarColor = this.resources.getColor(R.color.purple_500)
 
 
 
@@ -343,7 +349,7 @@ class MainActivity : AppCompatActivity() {
         //super.onUserLeaveHint()
 
 
-        //startActivity(Intent(this,MainActivity::class.java))
+        startActivity(Intent(this,MainActivity::class.java))
 
     }
 
