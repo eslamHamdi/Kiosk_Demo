@@ -7,8 +7,8 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.eslam.csp1401_test.HomeFragment"
-        android:label="fragment_home"
-        tools:layout="@layout/fragment_home" >
+        android:label="SignIn"
+        tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/action_homeFragment_to_eventsFragment"
             app:destination="@id/eventsFragment" />
@@ -16,8 +16,8 @@
     <fragment
         android:id="@+id/eventsFragment"
         android:name="com.eslam.csp1401_test.EventsFragment"
-        android:label="fragment_events"
-        tools:layout="@layout/fragment_events" >
+        android:label="Events"
+        tools:layout="@layout/fragment_events">
         <argument
             android:name="userName"
             app:argType="string"
@@ -29,7 +29,7 @@
     <fragment
         android:id="@+id/createEventFragment"
         android:name="com.eslam.csp1401_test.database.CreateEventFragment"
-        android:label="CreateEventFragment" >
+        android:label="CreateEvent">
         <argument
             android:name="accessToken"
             app:argType="string"

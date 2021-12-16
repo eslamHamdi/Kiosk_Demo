@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -65,13 +67,31 @@ class EventsFragment : Fragment() {
         adapter = EventsAdapter()
         binding.recycler.adapter = adapter
         token = args.userName
+//        val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
+//            // Handle the back button event
+//            this.isEnabled = false
+//
+//        }
+
+       val callback: OnBackPressedCallback = object :OnBackPressedCallback(
+            false // default to enabled
+        ) {
+
+           override fun handleOnBackPressed() {
+                    isEnabled = false
+           }
+
+       };
+        requireActivity().onBackPressedDispatcher.addCallback(
+            this, // LifecycleOwner
+            callback);
 
 
 
 
 
-        //requireActivity().actionBar?.title = args.userName
-        Log.d(null, "onViewCreated: $token")
+
+    Log.d(null, "onViewCreated: $token")
 
 
 
@@ -120,6 +140,7 @@ class EventsFragment : Fragment() {
 
     private fun getUpdatedEvents(token:String, start:String,end:String) {
         Log.d("Conflict2", "getUpdatedEvents: ")
+        if (nextLink == null && deltaLink == null)
         viewModel.getUpdates(token,start,end, BASE_URL)
     }
 
@@ -158,13 +179,14 @@ class EventsFragment : Fragment() {
 //    }
 
     private fun startRepeatingJob(timeInterval: Long): Job {
-        Log.d("Conflict1", "startRepeatingJob: ")
+
         return CoroutineScope(Dispatchers.IO).launch {
             while (isActive) {
                 // add your task here
                 if (deltaLink != null)
                 {
                     viewModel.getUpdatesUsingTheStateTokens(token!!,deltaLink!!, BASE_URL)
+                    Log.d("Conflict1", "startRepeatingJob: ")
                 }
                 delay(timeInterval)
             }
@@ -177,7 +199,8 @@ class EventsFragment : Fragment() {
 
         repeatingJob = startRepeatingJob(60000L)
         Log.e("repeatingUpdates", "onResume: called", )
-        updatingAccessToken(2700000L)
+        updatingAccessToken(1200000L)
+        resettingDataBase(43200000L)
     }
 
     override fun onPause() {
@@ -193,11 +216,11 @@ class EventsFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             while (isActive) {
                 // add your task here
-
+                delay(timeInterval)
                     Log.e("firingSilentToken", "updatingAccessToken: ", )
                     authHelper.acquireTokenSilently(activity)
 
-                delay(timeInterval)
+
             }
         }
     }
@@ -209,11 +232,13 @@ class EventsFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             while (isActive) {
                 // add your task here
+                delay(timeInterval)
+                Log.e(null, "resettingDataBase: entered", )
                 val start = getISO8601StringForStartDate()
                 val end = getISO8601StringForEndDate()
                 viewModel.clearDataBase()
                 viewModel.getUpdates(token!!,start!!,end!!, BASE_URL)
-                delay(timeInterval)
+
             }
         }
     }

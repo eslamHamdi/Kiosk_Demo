@@ -14,47 +14,82 @@ import android.os.Build
 import android.os.Bundle
 import android.os.UserManager
 import android.provider.Settings
-import android.view.Menu
-import android.view.MenuItem
+import android.view.*
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentContainerView
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.get
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.viewpager.widget.ViewPager
+import kotlin.system.exitProcess
+import android.app.KeyguardManager.KeyguardLock
+import android.util.Log
+
+import android.view.WindowManager
+
+
+
 
 
 class MainActivity : AppCompatActivity() {
 
+    lateinit var componentname: ComponentName
     lateinit var adminReciever: AdminReciever
-    lateinit var dpm:DevicePolicyManager
+    lateinit var dpm: DevicePolicyManager
+    lateinit var navController: NavController
+    lateinit var mDecorView: View
+
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+//            window.attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+//        }
         setContentView(R.layout.activity_main)
 
+        actionBar?.setDisplayHomeAsUpEnabled(true)
+        mDecorView = getWindow().getDecorView();
 
 
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment
+        navController = navHostFragment.navController
+        val appBarConfiguration =
+            AppBarConfiguration.Builder(setOf(R.id.homeFragment, R.id.eventsFragment)).build()
+        setupActionBarWithNavController(navController, appBarConfiguration)
 
 
         // Set an option to turn on lock task mode when starting the activity.
 //        val options = ActivityOptions.makeBasic()
 //        options.setLockTaskEnabled(true)
         adminReciever = AdminReciever()
-        val componentName = adminReciever.getComponentName(this)
+        componentname = ComponentName(this, AdminReciever::class.java)
+        //adminReciever.getComponentName(this)!!
         dpm = getSystemService(Context.DEVICE_POLICY_SERVICE)
                 as DevicePolicyManager
 
 
-        val keyguardManager: KeyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        val keyguardManager: KeyguardManager =
+            getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 
         if (dpm.isDeviceOwnerApp(packageName)) {
-            setDefaultMyKioskPolicies(true);
+            setDefaultMyKioskPolicies(false);
+
+
+            hideSystemUI()
         } else {
             Toast.makeText(
                 applicationContext,
-                "Not Device owner", Toast.LENGTH_SHORT)
+                "Not Device owner", Toast.LENGTH_SHORT
+            )
                 .show();
+            hideSystemUI()
+            startLockTask()
         }
-
-
 
 
 // Start our kiosk app's main activity with our lock task mode option.
@@ -96,9 +131,10 @@ class MainActivity : AppCompatActivity() {
         setUserRestriction(UserManager.DISALLOW_MOUNT_PHYSICAL_MEDIA, active)
         setUserRestriction(UserManager.DISALLOW_ADJUST_VOLUME, active)
 
+
         // disable keyguard and status bar
-        dpm.setKeyguardDisabled(adminReciever.getComponentName(this)!!, active)
-       dpm.setStatusBarDisabled(adminReciever.getComponentName(this)!!, active)
+        dpm.setKeyguardDisabled(componentname, active)
+        dpm.setStatusBarDisabled(componentname, active)
 
         // enable STAY_ON_WHILE_PLUGGED_IN
         enableStayOnWhilePluggedIn(active)
@@ -106,35 +142,36 @@ class MainActivity : AppCompatActivity() {
         // set system update policy
         if (active) {
             dpm.setSystemUpdatePolicy(
-                adminReciever.getComponentName(this)!!,
+                //adminReciever.getComponentName(this)!!
+                componentname,
                 SystemUpdatePolicy.createWindowedInstallPolicy(60, 120)
             )
         } else {
             dpm.setSystemUpdatePolicy(
-                adminReciever.getComponentName(this)!!,
+                componentname,
                 null
             )
         }
 
         // set this Activity as a lock task package
         dpm.setLockTaskPackages(
-            adminReciever.getComponentName(this)!!,
+            componentname,
             if (active) arrayOf(packageName) else arrayOf()
         )
         val intentFilter = IntentFilter(Intent.ACTION_MAIN)
         intentFilter.addCategory(Intent.CATEGORY_HOME)
-        intentFilter.addCategory(Intent.CATEGORY_DEFAULT)
+        //intentFilter.addCategory(Intent.CATEGORY_DEFAULT)
         if (active) {
             // set KIOSK activity as home intent receiver so that it is started
             // on reboot
             dpm.addPersistentPreferredActivity(
-                adminReciever.getComponentName(this)!!, intentFilter, ComponentName(
+                componentname, intentFilter, ComponentName(
                     packageName, MainActivity::class.java.name
                 )
             )
         } else {
             dpm.clearPackagePersistentPreferredActivities(
-                adminReciever.getComponentName(this)!!, packageName
+                componentname, packageName
             )
         }
     }
@@ -142,12 +179,12 @@ class MainActivity : AppCompatActivity() {
     private fun setUserRestriction(restriction: String, disallow: Boolean) {
         if (disallow) {
             dpm.addUserRestriction(
-                adminReciever.getComponentName(this)!!,
+                componentname,
                 restriction
             )
         } else {
             dpm.clearUserRestriction(
-                adminReciever.getComponentName(this)!!,
+                componentname,
                 restriction
             )
         }
@@ -156,7 +193,7 @@ class MainActivity : AppCompatActivity() {
     private fun enableStayOnWhilePluggedIn(enabled: Boolean) {
         if (enabled) {
             dpm.setGlobalSetting(
-                adminReciever.getComponentName(this)!!,
+                componentname,
                 Settings.Global.STAY_ON_WHILE_PLUGGED_IN,
                 (BatteryManager.BATTERY_PLUGGED_AC
                         or BatteryManager.BATTERY_PLUGGED_USB
@@ -164,7 +201,7 @@ class MainActivity : AppCompatActivity() {
             )
         } else {
             dpm.setGlobalSetting(
-                adminReciever.getComponentName(this)!!,
+                componentname,
                 Settings.Global.STAY_ON_WHILE_PLUGGED_IN,
                 "0"
             )
@@ -183,8 +220,18 @@ class MainActivity : AppCompatActivity() {
                 ActivityManager.LOCK_TASK_MODE_NONE
             ) {
                 startLockTask()
+
+
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        val activityManager = applicationContext
+            .getSystemService(ACTIVITY_SERVICE) as ActivityManager
+        activityManager.moveTaskToFront(taskId, 0)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -199,11 +246,108 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        if(item.itemId == R.id.exit)
-        {
-            setDefaultMyKioskPolicies(false)
+//        if(item.itemId == R.id.exit)
+//        {
+//            setDefaultMyKioskPolicies(false)
+//
+//        }
+
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+            R.id.exit -> {
+                if (dpm.isDeviceOwnerApp(packageName))
+                {
+                    setDefaultMyKioskPolicies(false)
+                }else
+                {
+                    stopLockTask()
+                }
+
+                finish()
+                exitProcess(0)
+            }
+
         }
 
         return super.onOptionsItemSelected(item)
     }
+
+    // This snippet hides the system bars.
+
+
+    override fun onBackPressed() {
+
+        if (navController.currentDestination == navController.graph.get(R.id.createEventFragment)) {
+            super.onBackPressed()
+        }
+
+    }
+
+    private fun hideSystemUI() {
+        // Set the IMMERSIVE flag.
+        // Set the content to appear under the system bars so that the content
+        // doesn't resize when the system bars hide and show.
+        val containerView = findViewById<FragmentContainerView>(R.id.fragment_container)
+        //containerView.fitsSystemWindows = true
+
+
+
+        mDecorView.setSystemUiVisibility(
+            //View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                     //View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or// hide nav bar
+                     //View.SYSTEM_UI_FLAG_FULLSCREEN or// hide status bar
+                    View.SYSTEM_UI_FLAG_LOW_PROFILE or
+                     View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        )
+
+        val window = this.window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+        window.statusBarColor = this.resources.getColor(R.color.purple_500)
+
+
+
+    }
+
+//    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+//
+//        if (keyCode == KeyEvent.KEYCODE_HOME) {
+//            Log.d(null, "onKeyDown: entered ")
+//            startActivity(Intent(this,MainActivity::class.java))
+//            return true
+//        } else {
+//            return super.onKeyDown(keyCode, event)
+//        }
+//
+//    }
+
+//    override fun onAttachedToWindow() {
+//        val keyguardManager = getSystemService(KEYGUARD_SERVICE) as KeyguardManager
+//        val lock = keyguardManager.newKeyguardLock(KEYGUARD_SERVICE)
+//        lock.disableKeyguard()
+//
+//    }
+
+//    fun changeDefaultWindow(){
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
+//        requestWindowFeature(Window.FEATURE_NO_TITLE);
+//    }
+
+    override fun onUserLeaveHint() {
+        //super.onUserLeaveHint()
+
+
+        //startActivity(Intent(this,MainActivity::class.java))
+
+    }
+
+
+
+
 }

@@ -36,35 +36,35 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
     }.asLiveData(viewModelScope.coroutineContext)
 
 
-    fun getEvents(accessToken:String?,url:String)
-    {
-//        val List:Array<String> = arrayOf("attendees","body","bodyPreview",
-//            "location","end","id","start","subject")
-
-        val list = "attendees,body,bodyPreview,location,end,id,start,subject"
-
-        viewModelScope.launch {
-            try {
-                if (accessToken != null)
-                {
-                    val map:MutableMap<String,String> = mutableMapOf()
-                    map["Authorization"] = "Bearer $accessToken"
-                    val result = GraphClient.getService(url).getEvents("Bearer $accessToken")
-
-
-
-                        eventList.value = result.value!!
-
-                }
-
-            }catch (e:Exception)
-            {
-
-                Log.e(null, "getEvents: ${e.message} ")
-            }
-
-        }
-    }
+//    fun getEvents(accessToken:String?,url:String)
+//    {
+////        val List:Array<String> = arrayOf("attendees","body","bodyPreview",
+////            "location","end","id","start","subject")
+//
+//        val list = "attendees,body,bodyPreview,location,end,id,start,subject"
+//
+//        viewModelScope.launch {
+//            try {
+//                if (accessToken != null)
+//                {
+//                    val map:MutableMap<String,String> = mutableMapOf()
+//                    map["Authorization"] = "Bearer $accessToken"
+//                    val result = GraphClient.getService(url).getEvents("Bearer $accessToken")
+//
+//
+//
+//                        eventList.value = result.value!!
+//
+//                }
+//
+//            }catch (e:Exception)
+//            {
+//
+//                Log.e(null, "getEvents: ${e.message} ")
+//            }
+//
+//        }
+//    }
 
     fun getUpdates(token:String,startDate:String,endDate:String,url:String)
     {
@@ -188,10 +188,10 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
     }
 
     init {
-       viewModelScope.launch(Dispatchers.IO) {
-
-          dao.wipeEvents()
-       }
+//       viewModelScope.launch(Dispatchers.IO) {
+//
+//          dao.wipeEvents()
+//       }
 
     }
 

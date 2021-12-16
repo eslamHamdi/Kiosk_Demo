@@ -21,7 +21,7 @@ interface GraphService {
     suspend fun getUpdatedEvents(@Header("Authorization") token:String,@Query("startDateTime") startDate:String,
                                  @Query("endDateTime") endDate:String):EventsChanges
 
-    @GET()
+    @GET
     @Headers("Content-Type: application/json")
     suspend fun getUpdatesUsingStateToken(@Header("Authorization")token:String,@Url stateLink:String ):EventsChanges
 
