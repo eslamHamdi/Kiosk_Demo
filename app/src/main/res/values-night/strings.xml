@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="exit_lock">Exit</string>
+    <string name="edit_event_time">Edit Event Time</string>
+    <string name="start">Start</string>
+    <string name="end">End</string>
+    <string name="set_new_date">Set Update</string>
 </resources>

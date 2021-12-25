@@ -83,7 +83,8 @@ class MainActivity : AppCompatActivity() {
 
         if (dpm.isDeviceOwnerApp(packageName)) {
             setDefaultMyKioskPolicies(true);
-
+            hideNavBar()
+//            startLockTask()
 
         } else {
             Toast.makeText(
@@ -164,6 +165,7 @@ class MainActivity : AppCompatActivity() {
         )
         val intentFilter = IntentFilter(Intent.ACTION_MAIN)
         intentFilter.addCategory(Intent.CATEGORY_HOME)
+        //We don't block the default category to allow MSAL to work
         //intentFilter.addCategory(Intent.CATEGORY_DEFAULT)
         if (active) {
             // set KIOSK activity as home intent receiver so that it is started
@@ -286,7 +288,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
 
-        if (navController.currentDestination == navController.graph.get(R.id.createEventFragment)) {
+        if (navController.currentDestination == navController.graph.get(R.id.createEventFragment) &&
+                    navController.currentDestination == navController.graph.get(R.id.settingsFragment)) {
             super.onBackPressed()
         }
 
@@ -320,30 +323,17 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-//    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-//
-//        if (keyCode == KeyEvent.KEYCODE_HOME) {
-//            Log.d(null, "onKeyDown: entered ")
-//            startActivity(Intent(this,MainActivity::class.java))
-//            return true
-//        } else {
-//            return super.onKeyDown(keyCode, event)
-//        }
-//
-//    }
-
-//    override fun onAttachedToWindow() {
-//        val keyguardManager = getSystemService(KEYGUARD_SERVICE) as KeyguardManager
-//        val lock = keyguardManager.newKeyguardLock(KEYGUARD_SERVICE)
-//        lock.disableKeyguard()
-//
-//    }
-
-//    fun changeDefaultWindow(){
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-//        getWindow().setType(WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG);
-//        requestWindowFeature(Window.FEATURE_NO_TITLE);
-//    }
+ fun hideNavBar()
+ {
+     mDecorView.setSystemUiVisibility(
+         // View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+         // View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+         //View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or// hide nav bar
+                 View.SYSTEM_UI_FLAG_LOW_PROFILE or
+                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+     )
+ }
 
     override fun onUserLeaveHint() {
         //super.onUserLeaveHint()

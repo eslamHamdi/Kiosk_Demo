@@ -12,6 +12,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.get
+import androidx.preference.PreferenceManager
 import com.eslam.csp1401_test.databinding.FragmentHomeBinding
 import com.microsoft.identity.client.*
 import com.microsoft.identity.client.exception.MsalException
@@ -87,9 +88,20 @@ class HomeFragment : Fragment() {
 
         //acquireTokenSilently()
         val controller = findNavController()
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.requireActivity())
 
-        Log.e(null, "updateUI: $token ", )
-        controller.safeNavigate(HomeFragmentDirections.actionHomeFragmentToEventsFragment(token))
+
+        if (sharedPreferences.all.isEmpty())
+        {
+
+            controller.safeNavigate(HomeFragmentDirections.actionHomeFragmentToSettingsFragment2(token))
+        }else{
+            Log.e(null, "updateUI: $token ", )
+            controller.safeNavigate(HomeFragmentDirections.actionHomeFragmentToEventsFragment(token))
+        }
+
+
+
        // val dest =controller.currentDestination
 
 //                if(controller.currentDestination == controller.graph[R.id.homeFragment]){

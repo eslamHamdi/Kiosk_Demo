@@ -13,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.eslam.csp1401_test.database.EventEntity
 import com.eslam.csp1401_test.databinding.FragmentEventsBinding
 import kotlinx.coroutines.*
 import java.text.DateFormat
@@ -20,11 +21,12 @@ import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 private const val BASE_URL = " https://graph.microsoft.com/v1.0/me/"
 
-class EventsFragment : Fragment() {
+class EventsFragment : Fragment(),EventsAdapter.EventUpdate {
 
     lateinit var binding :FragmentEventsBinding
 
@@ -36,14 +38,17 @@ class EventsFragment : Fragment() {
     var token:String? =null
 
     lateinit var adapter: EventsAdapter
+    private var errorMessage = ""
 
     private var nextLink:String? = null
     private var deltaLink:String? = null
-    private var updatedToken:String? = null
+    //private var updatedToken:String? = null
+
+
 
     private var repeatingJob:Job = Job()
 
-    private var updatedList:MutableList<EventItem?> = mutableListOf()
+    //private var updatedList:MutableList<EventItem?> = mutableListOf()
 
 
 
@@ -67,24 +72,7 @@ class EventsFragment : Fragment() {
         adapter = EventsAdapter()
         binding.recycler.adapter = adapter
         token = args.userName
-//        val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
-//            // Handle the back button event
-//            this.isEnabled = false
-//
-//        }
-
-       val callback: OnBackPressedCallback = object :OnBackPressedCallback(
-            false // default to enabled
-        ) {
-
-           override fun handleOnBackPressed() {
-                    isEnabled = false
-           }
-
-       };
-        requireActivity().onBackPressedDispatcher.addCallback(
-            this, // LifecycleOwner
-            callback);
+        adapter.eventUpdate = this
 
 
 
@@ -129,6 +117,12 @@ class EventsFragment : Fragment() {
             }
 
         }
+        viewModel.networkError.observe(viewLifecycleOwner) {
+            if (it != null) {
+
+                errorMessage = it
+            }
+        }
 
         binding.addEvent.setOnClickListener {
 
@@ -170,13 +164,7 @@ class EventsFragment : Fragment() {
         return dateFormat.format(date)
     }
 
-//    //using delta end point + alarm Manager
-//    fun getUpdatedRange()
-//    {
-//        deltaLink?.let { updatedToken?.let { it1 -> viewModel.getUpdatesUsingTheStateTokens(it1, it,
-//            BASE_URL) } }
-//
-//    }
+
 
     private fun startRepeatingJob(timeInterval: Long): Job {
 
@@ -185,10 +173,19 @@ class EventsFragment : Fragment() {
                 // add your task here
                 if (deltaLink != null)
                 {
-                    viewModel.getUpdatesUsingTheStateTokens(token!!,deltaLink!!, BASE_URL)
+                    delay(timeInterval)
                     Log.d("Conflict1", "startRepeatingJob: ")
+                    if (errorMessage != "HTTP 401 Unauthorized")
+                    {
+                        viewModel.getUpdatesUsingTheStateTokens(token!!,deltaLink!!, BASE_URL)
+                    }else{
+                        Log.e("firingSilentToken", "updatingAccessToken: ", )
+                        authHelper.acquireTokenSilently(this@EventsFragment.requireActivity())
+                    }
+
+
                 }
-                delay(timeInterval)
+
             }
         }
     }
@@ -241,6 +238,20 @@ class EventsFragment : Fragment() {
 
             }
         }
+    }
+
+    override fun onSelect(item: EventEntity) {
+
+        val bundle = Bundle()
+
+        if (token != null)
+        {
+            bundle.putString("token",token!!)
+            bundle.putParcelable("event",item)
+
+            findNavController().navigate(R.id.action_eventsFragment_to_editFragment,bundle)
+        }
+
     }
 }
 

@@ -12,6 +12,9 @@
         <action
             android:id="@+id/action_homeFragment_to_eventsFragment"
             app:destination="@id/eventsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_settingsFragment2"
+            app:destination="@id/settingsFragment" />
     </fragment>
     <fragment
         android:id="@+id/eventsFragment"
@@ -25,6 +28,9 @@
         <action
             android:id="@+id/action_eventsFragment_to_createEventFragment"
             app:destination="@id/createEventFragment" />
+        <action
+            android:id="@+id/action_eventsFragment_to_editFragment"
+            app:destination="@id/editFragment" />
     </fragment>
     <fragment
         android:id="@+id/createEventFragment"
@@ -38,4 +44,21 @@
             android:id="@+id/action_createEventFragment_to_eventsFragment"
             app:destination="@id/eventsFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.eslam.csp1401_test.SettingsFragment"
+        android:label="SettingsFragment" >
+        <argument
+            android:name="accessToken"
+            app:argType="string"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_settingsFragment_to_eventsFragment"
+            app:destination="@id/eventsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editFragment"
+        android:name="com.eslam.csp1401_test.EditFragment"
+        android:label="fragment_edit"
+        tools:layout="@layout/fragment_edit" />
 </navigation>

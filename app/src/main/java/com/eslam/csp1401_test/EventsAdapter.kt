@@ -38,6 +38,11 @@ class EventsAdapter:ListAdapter<EventEntity,EventsAdapter.ViewHolder>(DiffCallBa
             }
             binding.attend.text = br
 
+            binding.itemContainer.setOnClickListener {
+
+                eventUpdate?.onSelect(event)
+            }
+
 
         }
 
@@ -72,6 +77,11 @@ class EventsAdapter:ListAdapter<EventEntity,EventsAdapter.ViewHolder>(DiffCallBa
 
     }
 
+   var eventUpdate:EventUpdate? =null
 
+   interface EventUpdate
+   {
+       fun onSelect(item:EventEntity)
+   }
 
 }

@@ -8,6 +8,7 @@ import androidx.room.Room
 import com.eslam.csp1401_test.database.EventDataBase
 import com.eslam.csp1401_test.database.EventEntity
 import com.eslam.csp1401_test.database.toEntity
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
@@ -22,6 +23,8 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
 
 
     var updatesOnly:MutableLiveData<List<EventEntity?>> = MutableLiveData()
+
+    var networkError:MutableLiveData<String?> = MutableLiveData()
 
     var deltaLink:MutableLiveData<String?> = MutableLiveData()
     var nextLink:MutableLiveData<String?> = MutableLiveData()
@@ -97,7 +100,7 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
                     events.filter {
                         it?.removed?.reason == null
                     }
-                    val eventEntities = events.map {
+                   val eventEntities = events.map {
                         it.toEntity()
                     }
 
@@ -106,12 +109,14 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
                     }
 
                     dao.insertEvents(eventEntities)
+                    networkError.value = ""
 
                 }
 
 
             }catch (e:Exception)
             {
+                networkError.value = e.message
                 Log.e("deltaTest", "getUpdates: ${e.message} ", )
             }
         }
@@ -151,6 +156,7 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
                         it.removedReason == null
                     }
                     dao.insertEvents(eventEntities)
+                    networkError.value = ""
 
                 }
 
@@ -158,6 +164,7 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
 
             }catch (e:Exception)
             {
+                networkError.value = e.message
                 Log.e("updateUsingStateToken", "getUpdatesUsingTheStateTokens:  ${e.message} ", )
             }
         }
@@ -187,12 +194,37 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
         }
     }
 
-    init {
-//       viewModelScope.launch(Dispatchers.IO) {
-//
-//          dao.wipeEvents()
-//       }
+
+    suspend fun editEvent(token: String,dateTime: End,baseUrl:String,eventId:String)
+    {
+        try {
+           val json =Gson().toJson(dateTime)
+            val editEventResponse =GraphClient.getService(baseUrl).updateEvent(token,eventId,dateTime)
+
+            if (editEventResponse.isSuccessful && editEventResponse.code() == 200)
+            {
+                val edited = editEventResponse.body()
+                dao.insertEvents(listOf(edited.toEntity()))
+            }else if (editEventResponse.code() == 400)
+            {
+                Log.e(null, "editEvent: ${editEventResponse.message()} ", )
+            }
+
+        }catch (e:Exception)
+        {
+            Log.e(null, "editEvent: ${e.message}", )
+        }
 
     }
+
+    init {
+       viewModelScope.launch(Dispatchers.IO) {
+
+          dao.wipeEvents()
+       }
+
+    }
+
+
 
 }

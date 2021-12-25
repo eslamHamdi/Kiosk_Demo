@@ -1,5 +1,7 @@
 package com.eslam.csp1401_test
 
+import org.json.JSONObject
+import retrofit2.Response
 import retrofit2.http.*
 import retrofit2.http.Body
 
@@ -28,4 +30,8 @@ interface GraphService {
     @POST("calendar/events")
     @Headers("Content-Type: application/json")
     suspend fun createEvent(@Header("Authorization")token:String,@Body eventItem: EventItem):EventItem
+
+    @PATCH("calendar/events/{id}")
+    @Headers("Content-Type: application/json")
+    suspend fun updateEvent(@Header("Authorization")token:String, @Path("id") eventId:String, @Body EndDate:End):Response<EventItem>
 }

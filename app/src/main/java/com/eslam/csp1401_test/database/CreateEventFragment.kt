@@ -4,9 +4,7 @@ import android.R
 import android.os.Bundle
 import android.text.Editable
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -67,7 +65,7 @@ class CreateEventFragment : Fragment(),TimePickerDialog.OnTimeSetListener,DatePi
         super.onViewCreated(view, savedInstanceState)
         binding.startDate.showSoftInputOnFocus = false
         binding.startTime.showSoftInputOnFocus = false
-
+        setHasOptionsMenu(true)
         binding.endDate.showSoftInputOnFocus = false
         binding.endTime.showSoftInputOnFocus = false
 
@@ -99,6 +97,7 @@ class CreateEventFragment : Fragment(),TimePickerDialog.OnTimeSetListener,DatePi
         }
 
         binding.endTime.setOnClickListener {
+            dateTimeStatus = false
             openTimePicker()
         }
 
@@ -216,16 +215,6 @@ class CreateEventFragment : Fragment(),TimePickerDialog.OnTimeSetListener,DatePi
 
         tbd.show(parentFragmentManager!!, "Timepickerdialog")
 
-
-
-
-
-
-
-
-
-
-
     }
    // 2021-12-08T08:00:00.0000000  ${startDate}T$startTime  ${endDate}T$endTime
 
@@ -263,6 +252,10 @@ class CreateEventFragment : Fragment(),TimePickerDialog.OnTimeSetListener,DatePi
         return time.toString()
     }
 
+         override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+             super.onCreateOptionsMenu(menu, inflater)
+             menu.clear()
+         }
 
 
 }

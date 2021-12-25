@@ -1,14 +1,17 @@
 package com.eslam.csp1401_test.database
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.eslam.csp1401_test.AttendeesItem
 import com.eslam.csp1401_test.EventItem
 import com.eslam.csp1401_test.Location
 import com.eslam.csp1401_test.Status
+import kotlinx.parcelize.Parcelize
 
 
 @Entity(tableName = "EventEntities")
+@Parcelize
 data class EventEntity(
 
     @PrimaryKey(autoGenerate = false)
@@ -65,8 +68,9 @@ data class EventEntity(
     val isCancelled: Boolean? = null
 
 
-)
+) : Parcelable
 
+@Parcelize
 data class Attendee(
 
     val attendeesAddress: String? = null,
@@ -74,7 +78,7 @@ data class Attendee(
     val attendeesType: String? = null,
     val attendeesStatusResponse: String? = null,
     val attendeesStatusTime: String? = null
-)
+) : Parcelable
 //
 //
 //data class EntityLocation(
