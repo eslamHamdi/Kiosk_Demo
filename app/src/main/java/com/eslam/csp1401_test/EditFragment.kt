@@ -11,9 +11,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.eslam.csp1401_test.database.EventEntity
 import com.eslam.csp1401_test.databinding.FragmentEditBinding
+import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog
 import kotlinx.coroutines.launch
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.*
 
 private const val BASE_URL = " https://graph.microsoft.com/v1.0/me/"
@@ -46,11 +50,7 @@ class EditFragment : Fragment(), TimePickerDialog.OnTimeSetListener, DatePickerD
         val event:EventEntity = arguments?.get("event") as EventEntity
         val token:String = arguments?.get("token") as String
 
-        val startTime = event.startDateTime
-        val endTime = event.endDateTime
 
-
-        Log.d(null, "onViewCreated: $startTime", )
 
         binding.startEdit.setOnClickListener {
             dateTimeStatus = true
@@ -73,40 +73,41 @@ class EditFragment : Fragment(), TimePickerDialog.OnTimeSetListener, DatePickerD
 
             var start: Start? = null
             var end: End? = null
-            if (event != null) {
-                if (startDate.isEmpty()) {
+            if (startDate.isEmpty()) {
 
-                    startDate = event.startDateTime?.substringBefore("T")!!
-                }
-
-                if (endDate.isEmpty())
-                {
-                    endDate = event.endDateTime?.substringBefore("T")!!
-                }
-
+                startDate = event.startDateTime?.substringBefore("T")!!
             }
 
-            if (startTime != null && endTime != null)
+            if (endDate.isEmpty())
             {
-
-                    if (startTime.isEmpty() || endTime.isEmpty()) {
-                        Toast.makeText(this.requireContext(),"Please Enter valid Timing",Toast.LENGTH_LONG).show()
-                    }else {
-                        start = Start(dateTime = "${startDate}T$startTime",timeZone = "UTC")
-
-                        end = End(dateTime = "${endDate}T$endTime", timeZone = "UTC" )
-
-                        val dateTime = DateTime(start,end)
-
-
-                        lifecycleScope.launch {
-
-                            viewModel.editEvent(token,end,BASE_URL,event.id)
-                        }
-                    }
-
+                endDate = event.endDateTime?.substringBefore("T")!!
             }
 
+            Log.e(null, "onViewCreated: $startTime  $endTime", )
+            if (startTime.isEmpty() || endTime.isEmpty()) {
+                Toast.makeText(this.requireContext(),"Please Enter valid Timing",Toast.LENGTH_LONG).show()
+            }else {
+                start = Start(dateTime = "${startDate}T$startTime",timeZone = "Asia/Dubai")
+
+                end = End(dateTime = "${endDate}T$endTime", timeZone = "Asia/Dubai" )
+
+                //val eventItem = EventItem(start = start, end = end)
+
+                val dateTime = DateTime(start,end)
+
+
+
+//               val startBody =
+//                   Gson().toJson(eventItem.start).toRequestBody(okhttp3.MultipartBody.FORM)
+//
+//                val endBody = Gson().toJson(eventItem.end).toRequestBody(okhttp3.MultipartBody.FORM)
+
+
+                lifecycleScope.launch {
+
+                    viewModel.editEvent(token,dateTime,BASE_URL,event.id)
+                }
+            }
 
 
         }
@@ -193,4 +194,9 @@ class EditFragment : Fragment(), TimePickerDialog.OnTimeSetListener, DatePickerD
 
 }
 
-data class DateTime(val start :Start,val end:End)
+data class DateTime(
+
+    //@field:SerializedName("start")
+    val start :Start,
+   // @field:SerializedName("end")
+    val end:End)

@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import okhttp3.RequestBody
 
 
 class MainViewModel(val app:Application): AndroidViewModel(app) {
@@ -195,15 +196,16 @@ class MainViewModel(val app:Application): AndroidViewModel(app) {
     }
 
 
-    suspend fun editEvent(token: String,dateTime: End,baseUrl:String,eventId:String)
+    suspend fun editEvent(token: String,dateTime: DateTime,baseUrl:String,eventId:String)
     {
         try {
-           val json =Gson().toJson(dateTime)
+
             val editEventResponse =GraphClient.getService(baseUrl).updateEvent(token,eventId,dateTime)
 
             if (editEventResponse.isSuccessful && editEventResponse.code() == 200)
             {
                 val edited = editEventResponse.body()
+                Log.e(null, "editEvent: $edited", )
                 dao.insertEvents(listOf(edited.toEntity()))
             }else if (editEventResponse.code() == 400)
             {
